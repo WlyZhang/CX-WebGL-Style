@@ -1,158 +1,136 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<!--选项卡标题  可以随意修改  <title>xxxxxxxxxxxx</title> 这样都是可以的  -->
-    <title>Unity WebGL Player | {{{ PRODUCT_NAME }}}</title>
-	<!--选项卡icon  一般替换TemplateData 里面的 favicon.ico 图片就可以了-->
+    <title>Unity WebGL Player | VR</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
-	<!--这个不懂前段开发一般不建议修改-->
     <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
-  <body>
+</head>
+
+<body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}}></canvas>
-	  <!--这个是进度条和大logo部分-->
-      <div id="unity-loading-bar">
-		<!-- 这个是大logo 他的图片在TemplateData文件夹中 样式 在Style.css 中  下方所有的图片和这个同理  如果不想要logo 可以直接注释掉-->
-        <div id="unity-logo"></div>
-		<!--进度条-->
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
+        <canvas id="unity-canvas"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
         </div>
-      </div>
-	  <!--警告的显示区域-->
-      <div id="unity-warning"> </div>
-	  <!--这个是页面下方的logo和全屏显示的按钮 不想要可以全部注释-->
-      <!--
+        <div id="unity-warning"> </div>
         <div id="unity-footer">
-        <div id="unity-webgl-logo"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div>
-      </div>
-      -->
+            <div id="unity-webgl-logo"></div>
+            <div id="unity-fullscreen-button"></div>
+            <div id="unity-build-title">VR</div>
+        </div>
     </div>
     <script>
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-	  //上面4条一般不做修改，下面这2条是处理全屏按钮事件和警告信息显示的  不想要可以删除  但是注意 下方代码中有引用 要一并都去掉
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var warningBanner = document.querySelector("#unity-warning");
- 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-	  
-	  //显示一个临时的消息窗口几秒钟，如果type=='error'显示一个永久的错误消息在画布顶部。
-	  //如果type=='warning'，则使用黄色高亮显示。
-	  //修改或删除此功能，以自定义向用户显示非关键警告和错误消息的可视化显示方式。
-	  // 这个方法可以删除 ，删掉后就不会再有讨厌的报错弹窗的 如果删除的话下方方法调用也一并删除
-      /*function unityShowBanner(msg, type) {
+    var container = document.querySelector("#unity-container");
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingBar = document.querySelector("#unity-loading-bar");
+    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+    var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+    var warningBanner = document.querySelector("#unity-warning");
+
+    // Shows a temporary message banner/ribbon for a few seconds, or
+    // a permanent error message on top of the canvas if type=='error'.
+    // If type=='warning', a yellow highlight color is used.
+    // Modify or remove this function to customize the visually presented
+    // way that non-critical warnings and error messages are presented to the
+    // user.
+    function unityShowBanner(msg, type) {
         function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+            warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
         }
         var div = document.createElement('div');
         div.innerHTML = msg;
         warningBanner.appendChild(div);
         if (type == 'error') div.style = 'background: red; padding: 10px;';
         else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
+            if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+            setTimeout(function() {
+                warningBanner.removeChild(div);
+                updateBannerVisibility();
+            }, 5000);
         }
         updateBannerVisibility();
-      }*/
- 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
-      var config = {
-        dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
-        frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
-#if USE_WASM
-        codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
-#endif
-#if MEMORY_FILENAME
-        memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}",
-#endif
-#if SYMBOLS_FILENAME
-        symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
-#endif
+    }
+
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/JingboVR.loader.js";
+    var config = {
+        dataUrl: buildUrl + "/JingboVR.data",
+        frameworkUrl: buildUrl + "/JingboVR.framework.js",
+        codeUrl: buildUrl + "/JingboVR.wasm",
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "{{{ COMPANY_NAME }}}",
-        productName: "{{{ PRODUCT_NAME }}}",
-        productVersion: "{{{ PRODUCT_VERSION }}}",
+        companyName: "Jingbo",
+        productName: "VR",
+        productVersion: "1.0",
         showBanner: unityShowBanner,
-      };
- 
-      // By default Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-	  //默认情况下，Unity保持WebGL画布渲染目标大小与画布元素的DOM大小相匹配(由window.devicePixelRatio缩放)，如果你想从引擎内部分离这种同步
-	  //要自己调整画布DOM大小和WebGL渲染目标大小，将此设置为false。
-      // config.matchWebGLToCanvasSize = false;
- 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
- 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+    };
+
+    // By default Unity keeps WebGL canvas render target size matched with
+    // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+    // Set this to false if you want to decouple this synchronization from
+    // happening inside the engine, and you would instead like to size up
+    // the canvas DOM size and WebGL render target sizes yourself.
+    // config.matchWebGLToCanvasSize = false;
+
+
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
         container.className = "unity-mobile";
- 
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
- 
-        canvas.style.width = window.innerWidth + 'px';
-        canvas.style.height = window.innerHeight + 'px';
-		//如果想要在手机上运行要删除掉下面这条报错的调用 其实这个放在这就是为了不让手机用户使用
+        // Avoid draining fillrate performance on mobile devices,
+        // and default/override low DPI mode on mobile browsers.
+        config.devicePixelRatio = 1;
         //unityShowBanner('WebGL builds are not supported on mobile devices.');
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-		
-		//这个是unity里设置的宽高
-        //canvas.style.width = "{{{ WIDTH }}}px";
-        //canvas.style.height = "{{{ HEIGHT }}}px";
-		//这样写可实现窗口自适应浏览器大小,不需要再关注unity设置的宽高
-		canvas.style.width = "99vw";
-		canvas.style.height = "99vh";
-      }
- 
-#if BACKGROUND_FILENAME
-      canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
-#endif
-      loadingBar.style.display = "block";
- 
-	//在这可以声明一个GameInstance变量来留作unity和js交互
-	  var GameInstance = null;
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
+
+
+        var parent = canvas.parentElement;
+
+        const { innerWidth, innerHeight } = window;
+        console.log(innerWidth, innerHeight, (innerHeight - innerWidth) / 2, 0 - (innerHeight - innerWidth) / 2)
+
+        canvas.style.width = innerHeight;
+        canvas.style.height = innerWidth;
+
+        parent.style.width = innerHeight + "px";
+        parent.style.height = innerWidth + "px";
+
+
+        parent.style.webkitTransform = "rotate(90deg)";
+        parent.style.transform = "rotate(90deg)";
+
+        parent.style.top = ((innerHeight - innerWidth) / 2) + 'px';
+        parent.style.left = (0 - (innerHeight - innerWidth) / 2) + 'px';
+
+
+    } else {
+
+
+        canvas.style.width = "100vw";
+        canvas.style.height = "100vh";
+
+    }
+    canvas.style.background = "url('" + buildUrl + "/JingboVR.jpg') center / cover";
+    loadingBar.style.display = "block";
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
+            progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
-          loadingBar.style.display = "none";
-		  GameInstance = unityInstance;
-		  //绑定全屏按钮的事件
-          fullscreenButton.onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
+            loadingBar.style.display = "none";
+            fullscreenButton.onclick = () => {
+                unityInstance.SetFullscreen(1);
+            };
         }).catch((message) => {
-          alert(message);
+            alert(message);
         });
-      };
-      document.body.appendChild(script);
+    };
+    document.body.appendChild(script);
     </script>
-  </body>
+</body>
+
 </html>
